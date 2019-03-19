@@ -33,6 +33,13 @@ type AccessTokenInput struct {
 	RedirectURI  string
 }
 
+type RefreshTokenInput struct {
+	GrantType    grantType
+	ClientID     string
+	ClientSecret string
+	RefreshToken string
+}
+
 type AccessTokenOutput struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`
