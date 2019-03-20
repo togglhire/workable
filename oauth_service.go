@@ -3,48 +3,38 @@ package workable
 import (
 	"net/http"
 	"net/url"
+	"strings"
 )
 
-var _ OAuthService = &oauthService{}
+var _ oauthService = &oauthServiceImpl{}
 
-type OAuthService interface {
+type oauthService interface {
 	CreateAuthURL(AuthorizeURLInput) (string, error)
 	GetAccessToken(AccessTokenInput) (accessToken AccessTokenOutput, err error)
 	RefreshAccessToken(RefreshTokenInput) (accessToken AccessTokenOutput, err error)
 }
 
-type oauthService struct {
-	client       *http.Client
-	clientID     string
-	clientSecret string
+type oauthServiceImpl struct {
+	client *Client
 }
 
-func NewOAuthService(clientID, clientSecret string, httpClient *http.Client) OAuthService {
-	if httpClient == nil {
-		httpClient = http.DefaultClient
+func (o *oauthServiceImpl) CreateAuthURL(d AuthorizeURLInput) (result string, err error) {
+	if o.client == nil {
+		return result, ErrClientIsNil
 	}
-	return &oauthService{
-		client:       httpClient,
-		clientID:     clientID,
-		clientSecret: clientSecret,
-	}
-}
 
-func (o *oauthService) CreateAuthURL(d AuthorizeURLInput) (result string, err error) {
-	if d.ClientID == "" && o.clientID == "" {
+	if o.client.clientID == "" {
 		return "", ErrClientIDMissing
 	}
-	if d.ClientID == "" {
-		d.ClientID = o.clientID
-	}
+
 	authURL, err := url.Parse(authorizeURL)
 	if err != nil {
 		return "", err
 	}
 	q := authURL.Query()
-	q.Add("client_id", d.ClientID)
-	if d.RedirectURI != "" {
-		q.Add("redirect_uri", d.RedirectURI)
+	q.Add("client_id", o.client.clientID)
+	if o.client.redirectURI != "" {
+		q.Add("redirect_uri", o.client.redirectURI)
 	}
 
 	// TODO: check what kind of values resource can have
@@ -63,10 +53,39 @@ func (o *oauthService) CreateAuthURL(d AuthorizeURLInput) (result string, err er
 	return authURL.String(), nil
 }
 
-func (o *oauthService) GetAccessToken(d AccessTokenInput) (accessToken AccessTokenOutput, err error) {
-	panic("not implemented")
+// GetAccessToken retrieves the access token and updates the client to use the new access token
+func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (accessToken AccessTokenOutput, err error) {
+	if o.client == nil {
+		return accessToken, ErrClientIsNil
+	}
+
+	form := url.Values{}
+	form.Add("grant_type", string(grantTypeAuthorizationCode))
+	form.Add("client_id", o.client.clientID)
+	form.Add("client_secret", o.client.clientSecret)
+	form.Add("redirect_uri", o.client.redirectURI)
+	form.Add("code", d.Code)
+
+	accessTokenURL, err := url.Parse(accessTokenURL)
+	if err != nil {
+		return accessToken, err
+	}
+
+	req, err := http.NewRequest("POST", accessTokenURL.String(), strings.NewReader(form.Encode()))
+	if err != nil {
+		return accessToken, err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	err = do(o.client.httpClient, req, &accessToken)
+	if err != nil {
+		return accessToken, err
+	}
+
+	o.client.SetAccessToken(&accessToken)
+	return accessToken, err
 }
 
-func (o *oauthService) RefreshAccessToken(RefreshTokenInput) (accessToken AccessTokenOutput, err error) {
+func (o *oauthServiceImpl) RefreshAccessToken(RefreshTokenInput) (accessToken AccessTokenOutput, err error) {
 	panic("not implemented")
 }
