@@ -86,6 +86,45 @@ func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (accessToken Acces
 	return accessToken, err
 }
 
-func (o *oauthServiceImpl) RefreshAccessToken(RefreshTokenInput) (accessToken AccessTokenOutput, err error) {
-	panic("not implemented")
+// RefreshAccessToken retrieves a new access token and updates the client to use the new access token
+func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (accessToken AccessTokenOutput, err error) {
+	if o.client == nil {
+		return accessToken, ErrClientIsNil
+	}
+
+	form := url.Values{}
+	form.Add("grant_type", string(grantTypeRefreshToken))
+	form.Add("client_id", o.client.clientID)
+	form.Add("client_secret", o.client.clientSecret)
+
+	if d.RefreshToken != "" {
+		if o.client.accessToken != nil {
+			d.RefreshToken = o.client.accessToken.RefreshToken
+		}
+	}
+
+	if d.RefreshToken == "" {
+		return accessToken, ErrRefreshTokenMissing
+	}
+
+	form.Add("refresh_token", d.RefreshToken)
+
+	accessTokenURL, err := url.Parse(accessTokenURL)
+	if err != nil {
+		return accessToken, err
+	}
+
+	req, err := http.NewRequest("POST", accessTokenURL.String(), strings.NewReader(form.Encode()))
+	if err != nil {
+		return accessToken, err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	err = do(o.client.httpClient, req, &accessToken)
+	if err != nil {
+		return accessToken, err
+	}
+
+	o.client.SetAccessToken(&accessToken)
+	return accessToken, err
 }
