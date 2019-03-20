@@ -9,10 +9,8 @@ import (
 // ErrNotImplemented is used for returning errors
 var (
 	ErrClientIDMissing = errors.New("client id is missing")
-	ErrNotImplemented  = errors.New("not implemented")
 	ErrShouldNotBeNil  = errors.New("should not be nil")
-	ErrCodeMissing     = errors.New("code is missing")
-	ErrRequestURINil   = errors.New("request uri is nil")
+	ErrClientIsNil     = errors.New("client is nill, use NewClient function for initializing")
 )
 
 type Error struct {

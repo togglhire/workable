@@ -19,37 +19,50 @@ const (
 
 // Client manages communication with the Workable API.
 type Client struct {
-	// client is the HTTP Client used to communicate with the API.
-	client *http.Client
+	// httpcClient is the HTTP Client used to communicate with the API.
+	httpClient *http.Client
 
 	// OAuth, The access token you received once the OAuth process is complete and the user grants the partner permission to access their data
-	accessToken *AccessTokenOutput
+	accessToken  *AccessTokenOutput
+	clientID     string
+	clientSecret string
+	redirectURI  string
 
 	// BaseURL is the base url for api requests.
 	baseURL string
 
 	// Services used for talking with different parts of the Workable API
-	OAuth OAuthService
+	OAuth oauthService
 }
 
 // NewClient returns a new instance of *Client.
-func NewClient(accessToken *AccessTokenOutput, httpClient *http.Client) *Client {
-	return newClient(accessToken, "", httpClient)
+func NewClient(clientID, clientSecret, redirectURI string, accessToken *AccessTokenOutput, httpClient *http.Client) *Client {
+	return newClient(clientID, clientSecret, redirectURI, accessToken, httpClient)
 }
 
-func newClient(accessToken *AccessTokenOutput, apiKey string, httpClient *http.Client) *Client {
+// SetAccessToken updates the access token used for accessing API endpoints
+func (c *Client) SetAccessToken(accessToken *AccessTokenOutput) {
+	c.accessToken = accessToken
+}
+
+func newClient(clientID, clientSecret, redirectURI string, accessToken *AccessTokenOutput, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	client := &Client{
-		client:      httpClient,
-		accessToken: accessToken,
-		baseURL:     defaultBaseURL,
+		httpClient:   httpClient,
+		accessToken:  accessToken,
+		baseURL:      defaultBaseURL,
+		clientID:     clientID,
+		clientSecret: clientSecret,
+		redirectURI:  redirectURI,
 	}
 
 	//Services
-	client.OAuth = &oauthService{}
+	client.OAuth = &oauthService{
+		client: client,
+	}
 	return client
 }
 
@@ -106,7 +119,7 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 // It returns a Response object that provides a wrapper around http.Response
 // with some convenience methods.
 func (c *Client) do(req *http.Request, v interface{}) error {
-	return do(c.client, req, v)
+	return do(c.httpClient, req, v)
 }
 
 type workableErrorResponse struct {
