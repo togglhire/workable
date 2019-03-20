@@ -12,6 +12,7 @@ type oauthService interface {
 	CreateAuthURL(AuthorizeURLInput) (string, error)
 	GetAccessToken(AccessTokenInput) (accessToken AccessTokenOutput, err error)
 	RefreshAccessToken(RefreshTokenInput) (accessToken AccessTokenOutput, err error)
+	RevokePermissions() (err error)
 }
 
 type oauthServiceImpl struct {
@@ -66,7 +67,7 @@ func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (accessToken Acces
 	form.Add("redirect_uri", o.client.redirectURI)
 	form.Add("code", d.Code)
 
-	accessTokenURL, err := url.Parse(accessTokenURL)
+	accessTokenURL, err := url.Parse(tokenURL)
 	if err != nil {
 		return accessToken, err
 	}
@@ -109,7 +110,7 @@ func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (accessToken 
 
 	form.Add("refresh_token", d.RefreshToken)
 
-	accessTokenURL, err := url.Parse(accessTokenURL)
+	accessTokenURL, err := url.Parse(tokenURL)
 	if err != nil {
 		return accessToken, err
 	}
@@ -127,4 +128,36 @@ func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (accessToken 
 
 	o.client.SetAccessToken(&accessToken)
 	return accessToken, err
+}
+
+func (o *oauthServiceImpl) RevokePermissions() (err error) {
+	if o.client == nil {
+		return ErrClientIsNil
+	}
+
+	if o.client.accessToken.AccessToken == "" {
+		return ErrAccessTokenMissing
+	}
+
+	if o.client.accessToken.RefreshToken == "" {
+		return ErrRefreshTokenMissing
+	}
+
+	form := url.Values{}
+	form.Add("refresh_token", o.client.accessToken.RefreshToken)
+
+	revokeURL, err := url.Parse(revokeURL)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", revokeURL.String(), strings.NewReader(form.Encode()))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "application/json")
+
+	dummyStruct := struct{}{}
+	err = do(o.client.httpClient, req, &dummyStruct)
+	return err
 }

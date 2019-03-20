@@ -13,8 +13,9 @@ import (
 
 const (
 	defaultBaseURL = "https://www.workable.com/"
-	accessTokenURL = "https://www.workable.com/oauth/token"
+	tokenURL       = "https://www.workable.com/oauth/token"
 	authorizeURL   = "https://www.workable.com/oauth/authorize"
+	revokeURL      = "https://www.workable.com/oauth/revoke"
 )
 
 // Client manages communication with the Workable API.

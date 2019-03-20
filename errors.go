@@ -12,6 +12,7 @@ var (
 	ErrShouldNotBeNil      = errors.New("should not be nil")
 	ErrClientIsNil         = errors.New("client is nill, use NewClient function for initializing")
 	ErrRefreshTokenMissing = errors.New("refresh token is missing")
+	ErrAccessTokenMissing  = errors.New("access token is missing")
 )
 
 type Error struct {
