@@ -24,7 +24,7 @@ type Client struct {
 	httpClient *http.Client
 
 	// OAuth, The access token you received once the OAuth process is complete and the user grants the partner permission to access their data
-	accessToken  *AccessTokenOutput
+	token        *Token
 	clientID     string
 	clientSecret string
 	redirectURI  string
@@ -37,23 +37,23 @@ type Client struct {
 }
 
 // NewClient returns a new instance of *Client.
-func NewClient(clientID, clientSecret, redirectURI string, accessToken *AccessTokenOutput, httpClient *http.Client) *Client {
-	return newClient(clientID, clientSecret, redirectURI, accessToken, httpClient)
+func NewClient(clientID, clientSecret, redirectURI string, token *Token, httpClient *http.Client) *Client {
+	return newClient(clientID, clientSecret, redirectURI, token, httpClient)
 }
 
 // SetAccessToken updates the access token used for accessing API endpoints
-func (c *Client) SetAccessToken(accessToken *AccessTokenOutput) {
-	c.accessToken = accessToken
+func (c *Client) SetAccessToken(token *Token) {
+	c.token = token
 }
 
-func newClient(clientID, clientSecret, redirectURI string, accessToken *AccessTokenOutput, httpClient *http.Client) *Client {
+func newClient(clientID, clientSecret, redirectURI string, token *Token, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	client := &Client{
 		httpClient:   httpClient,
-		accessToken:  accessToken,
+		token:        token,
 		baseURL:      defaultBaseURL,
 		clientID:     clientID,
 		clientSecret: clientSecret,
@@ -103,8 +103,8 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 
 	req, err := http.NewRequest(method, requestURL, &buf)
 
-	if c.accessToken != nil {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.accessToken.AccessToken))
+	if c.token != nil {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token.AccessToken))
 	}
 
 	if req.Method == "POST" || req.Method == "PUT" {

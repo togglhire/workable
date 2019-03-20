@@ -10,8 +10,8 @@ var _ oauthService = &oauthServiceImpl{}
 
 type oauthService interface {
 	CreateAuthURL(AuthorizeURLInput) (string, error)
-	GetAccessToken(AccessTokenInput) (accessToken AccessTokenOutput, err error)
-	RefreshAccessToken(RefreshTokenInput) (accessToken AccessTokenOutput, err error)
+	GetAccessToken(AccessTokenInput) (token Token, err error)
+	RefreshAccessToken(RefreshTokenInput) (token Token, err error)
 	RevokePermissions() (err error)
 }
 
@@ -55,9 +55,9 @@ func (o *oauthServiceImpl) CreateAuthURL(d AuthorizeURLInput) (result string, er
 }
 
 // GetAccessToken retrieves the access token and updates the client to use the new access token
-func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (accessToken AccessTokenOutput, err error) {
+func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (token Token, err error) {
 	if o.client == nil {
-		return accessToken, ErrClientIsNil
+		return token, ErrClientIsNil
 	}
 
 	form := url.Values{}
@@ -69,28 +69,28 @@ func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (accessToken Acces
 
 	accessTokenURL, err := url.Parse(tokenURL)
 	if err != nil {
-		return accessToken, err
+		return token, err
 	}
 
 	req, err := http.NewRequest("POST", accessTokenURL.String(), strings.NewReader(form.Encode()))
 	if err != nil {
-		return accessToken, err
+		return token, err
 	}
 	req.Header.Set("Accept", "application/json")
 
-	err = do(o.client.httpClient, req, &accessToken)
+	err = do(o.client.httpClient, req, &token)
 	if err != nil {
-		return accessToken, err
+		return token, err
 	}
 
-	o.client.SetAccessToken(&accessToken)
-	return accessToken, err
+	o.client.SetAccessToken(&token)
+	return token, err
 }
 
 // RefreshAccessToken retrieves a new access token and updates the client to use the new access token
-func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (accessToken AccessTokenOutput, err error) {
+func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (token Token, err error) {
 	if o.client == nil {
-		return accessToken, ErrClientIsNil
+		return token, ErrClientIsNil
 	}
 
 	form := url.Values{}
@@ -99,35 +99,35 @@ func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (accessToken 
 	form.Add("client_secret", o.client.clientSecret)
 
 	if d.RefreshToken != "" {
-		if o.client.accessToken != nil {
-			d.RefreshToken = o.client.accessToken.RefreshToken
+		if o.client.token != nil {
+			d.RefreshToken = o.client.token.RefreshToken
 		}
 	}
 
 	if d.RefreshToken == "" {
-		return accessToken, ErrRefreshTokenMissing
+		return token, ErrRefreshTokenMissing
 	}
 
 	form.Add("refresh_token", d.RefreshToken)
 
 	accessTokenURL, err := url.Parse(tokenURL)
 	if err != nil {
-		return accessToken, err
+		return token, err
 	}
 
 	req, err := http.NewRequest("POST", accessTokenURL.String(), strings.NewReader(form.Encode()))
 	if err != nil {
-		return accessToken, err
+		return token, err
 	}
 	req.Header.Set("Accept", "application/json")
 
-	err = do(o.client.httpClient, req, &accessToken)
+	err = do(o.client.httpClient, req, &token)
 	if err != nil {
-		return accessToken, err
+		return token, err
 	}
 
-	o.client.SetAccessToken(&accessToken)
-	return accessToken, err
+	o.client.SetAccessToken(&token)
+	return token, err
 }
 
 func (o *oauthServiceImpl) RevokePermissions() (err error) {
@@ -135,16 +135,16 @@ func (o *oauthServiceImpl) RevokePermissions() (err error) {
 		return ErrClientIsNil
 	}
 
-	if o.client.accessToken.AccessToken == "" {
+	if o.client.token.AccessToken == "" {
 		return ErrAccessTokenMissing
 	}
 
-	if o.client.accessToken.RefreshToken == "" {
+	if o.client.token.RefreshToken == "" {
 		return ErrRefreshTokenMissing
 	}
 
 	form := url.Values{}
-	form.Add("refresh_token", o.client.accessToken.RefreshToken)
+	form.Add("refresh_token", o.client.token.RefreshToken)
 
 	revokeURL, err := url.Parse(revokeURL)
 	if err != nil {
