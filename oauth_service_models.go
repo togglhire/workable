@@ -17,26 +17,15 @@ const (
 
 // AuthorizeURLInput holds the info required to create an Authorize request.
 type AuthorizeURLInput struct {
-	ClientID     string
-	RedirectURI  string
-	Resource     string
-	ResponseType string
-	Scopes       []OAuthScope
+	Scopes []OAuthScope
 }
 
 // AccessTokenInput holds the info required to retrieve the access token.
 type AccessTokenInput struct {
-	GrantType    grantType
-	ClientID     string
-	ClientSecret string
-	Code         string
-	RedirectURI  string
+	Code string
 }
 
 type RefreshTokenInput struct {
-	GrantType    grantType
-	ClientID     string
-	ClientSecret string
 	RefreshToken string
 }
 
