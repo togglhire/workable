@@ -60,7 +60,7 @@ func newClient(clientID, clientSecret, redirectURI string, accessToken *AccessTo
 	}
 
 	//Services
-	client.OAuth = &oauthService{
+	client.OAuth = &oauthServiceImpl{
 		client: client,
 	}
 	return client
