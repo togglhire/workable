@@ -17,27 +17,27 @@ const (
 	authorizeURL   = "https://www.workable.com/oauth/authorize"
 )
 
-// Client manages communication with the Greenhouse API.
+// Client manages communication with the Workable API.
 type Client struct {
 	// client is the HTTP Client used to communicate with the API.
 	client *http.Client
 
-	// OAuth, The access token you received once the OAuth process is complete and the user grants the partner permission to access their data on Greenhouse
-	accessToken string
+	// OAuth, The access token you received once the OAuth process is complete and the user grants the partner permission to access their data
+	accessToken *AccessTokenOutput
 
 	// BaseURL is the base url for api requests.
 	baseURL string
 
-	// Services used for talking with different parts of the Greenhouse API
+	// Services used for talking with different parts of the Workable API
 	OAuth OAuthService
 }
 
 // NewClient returns a new instance of *Client.
-func NewClient(accessToken string, httpClient *http.Client) *Client {
-	return newClient(accessToken, "", "", httpClient)
+func NewClient(accessToken *AccessTokenOutput, httpClient *http.Client) *Client {
+	return newClient(accessToken, "", httpClient)
 }
 
-func newClient(accessToken, apiKey, onBehalfOf string, httpClient *http.Client) *Client {
+func newClient(accessToken *AccessTokenOutput, apiKey string, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
@@ -89,8 +89,8 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 
 	req, err := http.NewRequest(method, requestURL, &buf)
 
-	if c.accessToken != "" {
-		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.accessToken))
+	if c.accessToken != nil {
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.accessToken.AccessToken))
 	}
 
 	if req.Method == "POST" || req.Method == "PUT" {
@@ -100,7 +100,7 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 	return req, err
 }
 
-// do takes a prepared API request and makes the API call to Greenhouse.
+// do takes a prepared API request and makes the API call to Workable.
 // It will decode the JSON into a destination struct you provide as well
 // as parse any validation errors that may have occurred.
 // It returns a Response object that provides a wrapper around http.Response
