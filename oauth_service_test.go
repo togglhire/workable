@@ -1,6 +1,8 @@
 package workable
 
 import (
+	"log"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -37,4 +39,35 @@ func Test_oauthService_CreateAuthURL(t *testing.T) {
 		assert.NoError(t, err)
 	}
 	assert.Equal(t, test.wantURL, gotURL)
+}
+
+func Test_oauthService_GetAccessToken(t *testing.T) {
+	t.Skip("Requires working client id, secret & token to work")
+
+	requestURI, err := url.Parse("http://partner.com/redirect?code=e7fcd407a73dbe5219")
+	assert.NoError(t, err)
+	code := requestURI.Query().Get("code")
+	type args struct {
+		data AccessTokenInput
+	}
+	test := struct {
+		args    args
+		wantErr bool
+	}{
+		args: args{
+			data: AccessTokenInput{
+				Code: code,
+			},
+		}}
+
+	client := NewClient("client_id", "client_secret", "redirect_uri", nil, nil)
+	accessToken, err := client.OAuth.GetAccessToken(test.args.data)
+
+	switch test.wantErr {
+	case true:
+		assert.Error(t, err)
+	case false:
+		assert.NoError(t, err)
+	}
+	log.Printf("accessToken: %#+v\n", accessToken)
 }
