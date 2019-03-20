@@ -35,5 +35,5 @@ type AccessTokenOutput struct {
 	ExpiresIn    int    `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
 	Scope        string `json:"scope"`
-	CreatedAt    int    `json:"created_at"`
+	CreatedAt    int    `json:"created_at"` //unix timestamp
 }
