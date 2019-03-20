@@ -16,14 +16,24 @@ var (
 )
 
 type Error struct {
-	Error struct {
-		Name  string `json:"name"`
-		State string `json:"state"`
-	} `json:"error"`
-	RedirectURI        string `json:"redirect_uri"`
-	ResponseOnFragment string `json:"response_on_fragment"`
-	Reason             string `json:"reason"`
-	Description        string `json:"description"`
+	Error            string           `json:"error"`
+	ValidationErrors ValidationErrors `json:"validation_errors"`
+}
+
+type ValidationErrors struct {
+	Email []string `json:"email"`
+}
+type ErrorComplex struct {
+	Error              ErrorInner `json:"error"`
+	RedirectURI        string     `json:"redirect_uri"`
+	ResponseOnFragment string     `json:"response_on_fragment"`
+	Reason             string     `json:"reason"`
+	Description        string     `json:"description"`
+}
+
+type ErrorInner struct {
+	Name  string `json:"name"`
+	State string `json:"state"`
 }
 
 type ClientError struct {

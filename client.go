@@ -123,12 +123,6 @@ func (c *Client) do(req *http.Request, v interface{}) error {
 	return do(c.httpClient, req, v)
 }
 
-type workableErrorResponse struct {
-	Error struct {
-		Error Error `json:"error`
-	} `json:"error"`
-}
-
 func do(client *http.Client, req *http.Request, v interface{}) error {
 	req.Close = true
 	resp, err := client.Do(req)
@@ -141,7 +135,7 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 	defer resp.Body.Close()
 
 	if r, err := isError(resp); r && err == nil {
-		workableError := workableErrorResponse{}
+		workableError := Error{}
 		err = readJSON(resp.Body, &workableError)
 		if err != nil {
 			return err
@@ -149,14 +143,14 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 		if r, err = isClientError(resp); r && err == nil {
 			clientError := ClientError{
 				StatusCode:   resp.StatusCode,
-				ErrorMessage: workableError.Error.Error,
+				ErrorMessage: workableError,
 			}
 			return clientError
 		}
 		if r, err = isServerError(resp); r && err == nil {
 			serverError := ServerError{
 				StatusCode:   resp.StatusCode,
-				ErrorMessage: workableError.Error.Error,
+				ErrorMessage: workableError,
 			}
 			return serverError
 		}
