@@ -39,8 +39,8 @@ func NewClient(token Token, httpClient *http.Client) *Client {
 	return newClient(defaultBaseURL, defaultDomain, token, httpClient)
 }
 
-// NewSandBoxClient returns a new instance of *Client that connects to the sandbox version of workable.
-func NewSandBoxClient(token Token, httpClient *http.Client) *Client {
+// NewSandboxClient returns a new instance of *Client that connects to the sandbox version of workable.
+func NewSandboxClient(token Token, httpClient *http.Client) *Client {
 	return newClient(defaultBaseURL, sandboxDomain, token, httpClient)
 }
 
@@ -115,9 +115,11 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 	}
 
 	if c.token.AccessToken != "" {
+		print(c.token.AccessToken)
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token.AccessToken))
 	}
 
+	print(req.URL.String())
 	if req.Method == "POST" || req.Method == "PUT" {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	}
@@ -145,6 +147,7 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 	}
 	defer resp.Body.Close()
 
+	logBody(resp)
 	if r, err := isError(resp); r && err == nil {
 		workableError := Error{}
 		err = readJSON(resp.Body, &workableError)
