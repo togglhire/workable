@@ -6,16 +6,18 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
 )
 
 const (
-	defaultBaseURL = "https://www.workable.com/"
-	tokenURL       = "https://www.workable.com/oauth/token"
-	authorizeURL   = "https://www.workable.com/oauth/authorize"
-	revokeURL      = "https://www.workable.com/oauth/revoke"
+	defaultDomain    = "workable"
+	sandboxDomain    = "workablesandbox"
+	defaultSubdomain = "www"
+
+	defaultBaseURL = "https://{subdomain}.{domain}.com"
 )
 
 // Client manages communication with the Workable API.
@@ -24,46 +26,49 @@ type Client struct {
 	httpClient *http.Client
 
 	// OAuth, The access token you received once the OAuth process is complete and the user grants the partner permission to access their data
-	token        *Token
-	clientID     string
-	clientSecret string
-	redirectURI  string
+	token Token
 
-	// BaseURL is the base url for api requests.
 	baseURL string
 
-	// Services used for talking with different parts of the Workable API
-	OAuth oauthService
+	// Sandbox or Live
+	domain string
 }
 
 // NewClient returns a new instance of *Client.
-func NewClient(clientID, clientSecret, redirectURI string, token *Token, httpClient *http.Client) *Client {
-	return newClient(clientID, clientSecret, redirectURI, token, httpClient)
+func NewClient(token Token, httpClient *http.Client) *Client {
+	return newClient(defaultBaseURL, defaultDomain, token, httpClient)
 }
 
-// SetAccessToken updates the access token used for accessing API endpoints
-func (c *Client) SetAccessToken(token *Token) {
-	c.token = token
+// NewSandBoxClient returns a new instance of *Client that connects to the sandbox version of workable.
+func NewSandBoxClient(token Token, httpClient *http.Client) *Client {
+	return newClient(defaultBaseURL, sandboxDomain, token, httpClient)
 }
 
-func newClient(clientID, clientSecret, redirectURI string, token *Token, httpClient *http.Client) *Client {
+func (c *Client) Accounts() accountService {
+	return &accountServiceImpl{
+		client: c,
+	}
+}
+
+func (c *Client) OAuth(info OAuthServiceInput) oauthService {
+	return &oauthServiceImpl{
+		client: c,
+		info:   info,
+	}
+}
+
+func newClient(baseURL, domain string, token Token, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
 
 	client := &Client{
-		httpClient:   httpClient,
-		token:        token,
-		baseURL:      defaultBaseURL,
-		clientID:     clientID,
-		clientSecret: clientSecret,
-		redirectURI:  redirectURI,
+		httpClient: httpClient,
+		token:      token,
+		domain:     domain,
+		baseURL:    baseURL,
 	}
 
-	//Services
-	client.OAuth = &oauthServiceImpl{
-		client: client,
-	}
 	return client
 }
 
@@ -80,7 +85,10 @@ type Params map[string]interface{}
 // newRequest creates an authenticated API request that is ready to send.
 func (c *Client) newRequest(method string, endpoint string, params Params, body interface{}) (*http.Request, error) {
 	method = strings.ToUpper(method)
-	requestURL := fmt.Sprintf("%sv1/%s", c.baseURL, endpoint)
+	requestURL := c.baseURL + "/spi/v3/{endpoint}"
+	requestURL = strings.Replace(requestURL, "{subdomain}", "www", -1)
+	requestURL = strings.Replace(requestURL, "{domain}", c.domain, -1)
+	requestURL = strings.Replace(requestURL, "{endpoint}", endpoint, -1)
 
 	// Query String
 	qs := url.Values{}
@@ -102,8 +110,11 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 	}
 
 	req, err := http.NewRequest(method, requestURL, &buf)
+	if err != nil {
+		return req, err
+	}
 
-	if c.token != nil {
+	if c.token.AccessToken != "" {
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token.AccessToken))
 	}
 
@@ -181,4 +192,17 @@ func formatReadCloser(r *io.ReadCloser) string {
 	*r = rdr1 // restore body
 
 	return string(body)
+}
+
+func logBody(r *http.Response) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Println("ERR:", err.Error())
+		return
+	}
+	rdr1 := ioutil.NopCloser(bytes.NewBuffer(body))
+	r.Body.Close()
+	r.Close = true
+	r.Body = rdr1 // restore body
+	log.Println("BODY:", string(body))
 }

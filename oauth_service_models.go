@@ -15,6 +15,12 @@ const (
 	grantTypeRefreshToken      = grantType("refresh_token")
 )
 
+type OAuthServiceInput struct {
+	ClientID     string
+	ClientSecret string
+	RedirectURI  string
+}
+
 // AuthorizeURLInput holds the info required to create an Authorize request.
 type AuthorizeURLInput struct {
 	Scopes []OAuthScope

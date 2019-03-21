@@ -16,26 +16,25 @@ type oauthService interface {
 }
 
 type oauthServiceImpl struct {
+	info   OAuthServiceInput
 	client *Client
 }
 
-func (o *oauthServiceImpl) CreateAuthURL(d AuthorizeURLInput) (result string, err error) {
-	if o.client == nil {
-		return result, ErrClientIsNil
-	}
-
-	if o.client.clientID == "" {
+func (s *oauthServiceImpl) CreateAuthURL(d AuthorizeURLInput) (result string, err error) {
+	if s.info.ClientID == "" {
 		return "", ErrClientIDMissing
 	}
 
+	authorizeURL := strings.Replace(defaultBaseURL+"/oauth/authorize", "{subdomain}", "www", -1)
+	authorizeURL = strings.Replace(authorizeURL, "{domain}", s.client.domain, -1)
 	authURL, err := url.Parse(authorizeURL)
 	if err != nil {
 		return "", err
 	}
 	q := authURL.Query()
-	q.Add("client_id", o.client.clientID)
-	if o.client.redirectURI != "" {
-		q.Add("redirect_uri", o.client.redirectURI)
+	q.Add("client_id", s.info.ClientID)
+	if s.info.RedirectURI != "" {
+		q.Add("redirect_uri", s.info.RedirectURI)
 	}
 
 	// TODO: check what kind of values resource can have
@@ -54,19 +53,21 @@ func (o *oauthServiceImpl) CreateAuthURL(d AuthorizeURLInput) (result string, er
 	return authURL.String(), nil
 }
 
-// GetAccessToken retrieves the access token and updates the client to use the new access token
-func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (token Token, err error) {
-	if o.client == nil {
+// GetAccessToken retrieves the access token
+func (s *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (token Token, err error) {
+	if s.client == nil {
 		return token, ErrClientIsNil
 	}
 
 	form := url.Values{}
 	form.Add("grant_type", string(grantTypeAuthorizationCode))
-	form.Add("client_id", o.client.clientID)
-	form.Add("client_secret", o.client.clientSecret)
-	form.Add("redirect_uri", o.client.redirectURI)
+	form.Add("client_id", s.info.ClientID)
+	form.Add("client_secret", s.info.ClientSecret)
+	form.Add("redirect_uri", s.info.RedirectURI)
 	form.Add("code", d.Code)
 
+	tokenURL := strings.Replace(defaultBaseURL+"/oauth/token", "{subdomain}", "www", -1)
+	tokenURL = strings.Replace(tokenURL, "{domain}", s.client.domain, -1)
 	accessTokenURL, err := url.Parse(tokenURL)
 	if err != nil {
 		return token, err
@@ -78,29 +79,28 @@ func (o *oauthServiceImpl) GetAccessToken(d AccessTokenInput) (token Token, err 
 	}
 	req.Header.Set("Accept", "application/json")
 
-	err = do(o.client.httpClient, req, &token)
+	err = do(s.client.httpClient, req, &token)
 	if err != nil {
 		return token, err
 	}
 
-	o.client.SetAccessToken(&token)
 	return token, err
 }
 
-// RefreshAccessToken retrieves a new access token and updates the client to use the new access token
-func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (token Token, err error) {
-	if o.client == nil {
+// RefreshAccessToken retrieves a new access token
+func (s *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (token Token, err error) {
+	if s.client == nil {
 		return token, ErrClientIsNil
 	}
 
 	form := url.Values{}
 	form.Add("grant_type", string(grantTypeRefreshToken))
-	form.Add("client_id", o.client.clientID)
-	form.Add("client_secret", o.client.clientSecret)
+	form.Add("client_id", s.info.ClientID)
+	form.Add("client_secret", s.info.ClientSecret)
 
 	if d.RefreshToken != "" {
-		if o.client.token != nil {
-			d.RefreshToken = o.client.token.RefreshToken
+		if s.client.token.RefreshToken == "" {
+			d.RefreshToken = s.client.token.RefreshToken
 		}
 	}
 
@@ -110,6 +110,8 @@ func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (token Token,
 
 	form.Add("refresh_token", d.RefreshToken)
 
+	tokenURL := strings.Replace(defaultBaseURL+"/oauth/token", "{subdomain}", "www", -1)
+	tokenURL = strings.Replace(tokenURL, "{domain}", s.client.domain, -1)
 	accessTokenURL, err := url.Parse(tokenURL)
 	if err != nil {
 		return token, err
@@ -121,32 +123,33 @@ func (o *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (token Token,
 	}
 	req.Header.Set("Accept", "application/json")
 
-	err = do(o.client.httpClient, req, &token)
+	err = do(s.client.httpClient, req, &token)
 	if err != nil {
 		return token, err
 	}
 
-	o.client.SetAccessToken(&token)
 	return token, err
 }
 
-func (o *oauthServiceImpl) RevokePermissions() (err error) {
-	if o.client == nil {
+func (s *oauthServiceImpl) RevokePermissions() (err error) {
+	if s.client == nil {
 		return ErrClientIsNil
 	}
 
-	if o.client.token.AccessToken == "" {
+	if s.client.token.AccessToken == "" {
 		return ErrAccessTokenMissing
 	}
 
-	if o.client.token.RefreshToken == "" {
+	if s.client.token.RefreshToken == "" {
 		return ErrRefreshTokenMissing
 	}
 
 	form := url.Values{}
-	form.Add("refresh_token", o.client.token.RefreshToken)
+	form.Add("refresh_token", s.client.token.RefreshToken)
 
-	revokeURL, err := url.Parse(revokeURL)
+	revokeURLTemplate := strings.Replace(defaultBaseURL+"/oauth/revoke", "{subdomain}", "www", -1)
+	revokeURLTemplate = strings.Replace(revokeURLTemplate, "{domain}", s.client.domain, -1)
+	revokeURL, err := url.Parse(revokeURLTemplate)
 	if err != nil {
 		return err
 	}
@@ -158,6 +161,6 @@ func (o *oauthServiceImpl) RevokePermissions() (err error) {
 	req.Header.Set("Accept", "application/json")
 
 	dummyStruct := struct{}{}
-	err = do(o.client.httpClient, req, &dummyStruct)
+	err = do(s.client.httpClient, req, &dummyStruct)
 	return err
 }

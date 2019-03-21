@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+type Jobs struct {
+	Jobs   []Job  `json:"jobs"`
+	Paging Paging `json:"paging"`
+}
+
 type Job struct {
 	ID             string    `json:"id"`
 	Title          string    `json:"title"`
@@ -27,11 +32,6 @@ type Location struct {
 	City          string `json:"city"`
 	ZipCode       string `json:"zip_code"`
 	Telecommuting bool   `json:"telecommuting"`
-}
-
-type Jobs struct {
-	Jobs   []Job  `json:"jobs"`
-	Paging Paging `json:"paging"`
 }
 
 type Paging struct {

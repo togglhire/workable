@@ -31,7 +31,7 @@ func setup() {
 	mux = http.NewServeMux()
 	server = httptest.NewServer(mux)
 
-	client = NewClient("client_id", "client_secret", "redirect_uri", nil, nil)
+	client = NewClient(Token{}, nil)
 	client.baseURL = server.URL + "/"
 }
 
@@ -122,10 +122,11 @@ func Test_spaceDelimit(t *testing.T) {
 		})
 	}
 }
+
 func Test_do_client_error(t *testing.T) {
 	setup()
 	defer teardown()
-	mux.HandleFunc("/v1/client-error", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/spi/v3/client-error", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			t.Fatalf("unexpected method: %s", r.Method)
 		}
@@ -183,7 +184,7 @@ func Test_do_client_error(t *testing.T) {
 func Test_do_server_error(t *testing.T) {
 	setup()
 	defer teardown()
-	mux.HandleFunc("/v1/server-error", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/spi/v3/server-error", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			t.Fatalf("unexpected method: %s", r.Method)
 		}
@@ -242,7 +243,7 @@ func TestClient_newRequest_header_OAuth(t *testing.T) {
 	token := Token{
 		AccessToken: "12345",
 	}
-	client = NewClient("client_id", "client_secret", "redirect_uri", &token, nil)
+	client = NewClient(token, nil)
 	req, err := client.newRequest("GET", "/", nil, nil)
 	assert.NoError(t, err)
 	authHeader := req.Header.Get("Authorization")
