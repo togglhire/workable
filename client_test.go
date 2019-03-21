@@ -164,7 +164,7 @@ func Test_do_client_error(t *testing.T) {
 	}
 
 	var result interface{}
-	req, err := client.newRequest("GET", "client-error", nil, nil)
+	req, err := client.newRequest("", "GET", "client-error", nil, nil)
 	if err != nil {
 		return
 	}
@@ -222,7 +222,7 @@ func Test_do_server_error(t *testing.T) {
 	}
 
 	var result interface{}
-	req, err := client.newRequest("GET", "server-error", nil, nil)
+	req, err := client.newRequest("", "GET", "server-error", nil, nil)
 	if err != nil {
 		return
 	}
@@ -244,7 +244,7 @@ func TestClient_newRequest_header_OAuth(t *testing.T) {
 		AccessToken: "12345",
 	}
 	client = NewClient(token, nil)
-	req, err := client.newRequest("GET", "/", nil, nil)
+	req, err := client.newRequest("", "GET", "/", nil, nil)
 	assert.NoError(t, err)
 	authHeader := req.Header.Get("Authorization")
 	assert.Equal(t, "Bearer 12345", authHeader)
