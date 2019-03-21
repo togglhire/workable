@@ -57,6 +57,13 @@ func (c *Client) OAuth(info OAuthServiceInput) oauthService {
 	}
 }
 
+func (c *Client) Jobs(subdomain string) jobService {
+	return &jobServiceImpl{
+		client:    c,
+		subdomain: subdomain,
+	}
+}
+
 func newClient(baseURL, domain string, token Token, httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
@@ -150,7 +157,6 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	logBody(resp)
 	if r, err := isError(resp); r && err == nil {
 		workableError := Error{}
 		err = readJSON(resp.Body, &workableError)
