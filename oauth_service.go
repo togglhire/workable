@@ -98,7 +98,7 @@ func (s *oauthServiceImpl) RefreshAccessToken(d RefreshTokenInput) (token Token,
 	form.Add("client_id", s.info.ClientID)
 	form.Add("client_secret", s.info.ClientSecret)
 
-	if d.RefreshToken != "" {
+	if d.RefreshToken == "" {
 		if s.client.token.RefreshToken == "" {
 			d.RefreshToken = s.client.token.RefreshToken
 		}
