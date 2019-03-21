@@ -83,10 +83,15 @@ func readJSON(r io.ReadCloser, v interface{}) error {
 type Params map[string]interface{}
 
 // newRequest creates an authenticated API request that is ready to send.
-func (c *Client) newRequest(method string, endpoint string, params Params, body interface{}) (*http.Request, error) {
+func (c *Client) newRequest(subdomain, method string, endpoint string, params Params, body interface{}) (*http.Request, error) {
+
+	if subdomain == "" {
+		subdomain = "www"
+	}
+
 	method = strings.ToUpper(method)
 	requestURL := c.baseURL + "/spi/v3/{endpoint}"
-	requestURL = strings.Replace(requestURL, "{subdomain}", "www", -1)
+	requestURL = strings.Replace(requestURL, "{subdomain}", subdomain, -1)
 	requestURL = strings.Replace(requestURL, "{domain}", c.domain, -1)
 	requestURL = strings.Replace(requestURL, "{endpoint}", endpoint, -1)
 
