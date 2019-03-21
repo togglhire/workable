@@ -1,6 +1,7 @@
 package workable
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -159,6 +160,7 @@ func (s *oauthServiceImpl) RevokePermissions() (err error) {
 		return err
 	}
 	req.Header.Set("Accept", "application/json")
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", s.client.token.AccessToken))
 
 	dummyStruct := struct{}{}
 	err = do(s.client.httpClient, req, &dummyStruct)
