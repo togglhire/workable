@@ -115,11 +115,9 @@ func (c *Client) newRequest(method string, endpoint string, params Params, body 
 	}
 
 	if c.token.AccessToken != "" {
-		print(c.token.AccessToken)
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token.AccessToken))
 	}
 
-	print(req.URL.String())
 	if req.Method == "POST" || req.Method == "PUT" {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	}
