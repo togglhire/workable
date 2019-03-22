@@ -38,7 +38,6 @@ func (s *jobServiceImpl) Get(input GetJobsInput, next string) (result Jobs, err 
 	if next != "" { // use next url
 		req, err = s.client.newRequestFromURL(next, "GET", nil)
 	} else {
-
 		req, err = s.client.newRequest(s.subdomain, "GET", "jobs", params, nil)
 	}
 	if err != nil {
