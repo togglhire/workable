@@ -37,3 +37,12 @@ type Location struct {
 type Paging struct {
 	Next string `json:"next"`
 }
+
+type GetJobsInput struct {
+	State        string
+	Limit        int
+	SinceID      string
+	MaxID        string
+	CreatedAfter int64
+	UpdatedAfter int64
+}
