@@ -153,12 +153,8 @@ func Test_do_client_error(t *testing.T) {
 		clientError: ClientError{
 			StatusCode: 400,
 			ErrorSimple: Error{
-				Error: "Validation failed: Email candidate already exists",
-				ValidationErrors: ValidationErrors{
-					Email: []string{
-						"candidate already exists",
-					},
-				},
+				Error:            "Validation failed: Email candidate already exists",
+				ValidationErrors: map[string]interface{}{"email": []interface{}{"candidate already exists"}},
 			},
 		},
 	}
@@ -211,12 +207,8 @@ func Test_do_server_error(t *testing.T) {
 		serverError: ServerError{
 			StatusCode: 500,
 			ErrorSimple: Error{
-				Error: "Validation failed: Email candidate already exists",
-				ValidationErrors: ValidationErrors{
-					Email: []string{
-						"candidate already exists",
-					},
-				},
+				Error:            "Validation failed: Email candidate already exists",
+				ValidationErrors: map[string]interface{}{"email": []interface{}{"candidate already exists"}},
 			},
 		},
 	}

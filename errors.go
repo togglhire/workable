@@ -16,13 +16,10 @@ var (
 )
 
 type Error struct {
-	Error            string           `json:"error"`
-	ValidationErrors ValidationErrors `json:"validation_errors"`
+	Error            string      `json:"error"`
+	ValidationErrors interface{} `json:"validation_errors"`
 }
 
-type ValidationErrors struct {
-	Email []string `json:"email"`
-}
 type ErrorComplex struct {
 	Error              ErrorInner `json:"error"`
 	RedirectURI        string     `json:"redirect_uri"`
