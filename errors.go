@@ -38,20 +38,22 @@ type ErrorInner struct {
 
 type ClientError struct {
 	StatusCode   int
-	ErrorMessage Error
+	ErrorSimple  Error
+	ErrorComplex ErrorComplex
 }
 
 func (e ClientError) Error() string {
-	return fmt.Sprintf("Error: %#+v\n", e.ErrorMessage)
+	return fmt.Sprintf("Error: %#+v\n%#+v\n", e.ErrorSimple, e.ErrorComplex)
 }
 
 type ServerError struct {
 	StatusCode   int
-	ErrorMessage Error
+	ErrorSimple  Error
+	ErrorComplex ErrorComplex
 }
 
 func (e ServerError) Error() string {
-	return fmt.Sprintf("Error: %#+v\n", e.ErrorMessage)
+	return fmt.Sprintf("Error: %#+v\n%#+v\n", e.ErrorSimple, e.ErrorComplex)
 }
 
 func isOK(r *http.Response) (bool, error) {
