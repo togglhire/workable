@@ -44,12 +44,6 @@ func NewSandboxClient(token Token, httpClient *http.Client) *Client {
 	return newClient(defaultBaseURL, sandboxDomain, token, httpClient)
 }
 
-func (c *Client) Accounts() accountService {
-	return &accountServiceImpl{
-		client: c,
-	}
-}
-
 func (c *Client) OAuth(info OAuthServiceInput) oauthService {
 	return &oauthServiceImpl{
 		client: c,
@@ -57,8 +51,21 @@ func (c *Client) OAuth(info OAuthServiceInput) oauthService {
 	}
 }
 
+func (c *Client) Accounts() accountService {
+	return &accountServiceImpl{
+		client: c,
+	}
+}
+
 func (c *Client) Jobs(subdomain string) jobService {
 	return &jobServiceImpl{
+		client:    c,
+		subdomain: subdomain,
+	}
+}
+
+func (c *Client) Candidates(subdomain string) candidateService {
+	return &candidateServiceImpl{
 		client:    c,
 		subdomain: subdomain,
 	}
