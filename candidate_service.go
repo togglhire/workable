@@ -1,9 +1,11 @@
 package workable
 
+import "fmt"
+
 var _ candidateService = &candidateServiceImpl{}
 
 type candidateService interface {
-	Post(input CandidateInput) (result CandidateOutput, err error)
+	Post(jobShortCode string, input CandidateInput) (result CandidateOutput, err error)
 }
 
 type candidateServiceImpl struct {
@@ -11,8 +13,8 @@ type candidateServiceImpl struct {
 	subdomain string
 }
 
-func (s *candidateServiceImpl) Post(input CandidateInput) (result CandidateOutput, err error) {
-	req, err := s.client.newRequest(s.subdomain, "POST", "candidates", nil, input)
+func (s *candidateServiceImpl) Post(jobShortCode string, input CandidateInput) (result CandidateOutput, err error) {
+	req, err := s.client.newRequest(s.subdomain, "POST", fmt.Sprintf("jobs/%s/candidates", jobShortCode), nil, input)
 	if err != nil {
 		return
 	}
