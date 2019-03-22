@@ -80,7 +80,7 @@ func newClient(baseURL, domain string, token Token, httpClient *http.Client) *Cl
 }
 
 // ReadJSON reads the json value into the v param. Can only read once!
-func readJSON(r io.ReadCloser, v interface{}) error {
+func readJSON(r io.Reader, v interface{}) error {
 	decoder := json.NewDecoder(r)
 	err := decoder.Decode(&v)
 	return err
@@ -89,29 +89,7 @@ func readJSON(r io.ReadCloser, v interface{}) error {
 // Params are used to send parameters with the request.
 type Params map[string]interface{}
 
-// newRequest creates an authenticated API request that is ready to send.
-func (c *Client) newRequest(subdomain, method string, endpoint string, params Params, body interface{}) (*http.Request, error) {
-
-	if subdomain == "" {
-		subdomain = "www"
-	}
-
-	method = strings.ToUpper(method)
-	requestURL := c.baseURL + "/spi/v3/{endpoint}"
-	requestURL = strings.Replace(requestURL, "{subdomain}", subdomain, -1)
-	requestURL = strings.Replace(requestURL, "{domain}", c.domain, -1)
-	requestURL = strings.Replace(requestURL, "{endpoint}", endpoint, -1)
-
-	// Query String
-	qs := url.Values{}
-	for k, v := range params {
-		qs.Add(k, fmt.Sprintf("%v", v))
-	}
-
-	if len(qs) > 0 {
-		requestURL += "?" + qs.Encode()
-	}
-
+func (c *Client) newRequestFromURL(reqURL string, method string, body interface{}) (*http.Request, error) {
 	// Request body
 	var buf bytes.Buffer
 	if body != nil {
@@ -121,7 +99,9 @@ func (c *Client) newRequest(subdomain, method string, endpoint string, params Pa
 		}
 	}
 
-	req, err := http.NewRequest(method, requestURL, &buf)
+	method = strings.ToUpper(method)
+
+	req, err := http.NewRequest(method, reqURL, &buf)
 	if err != nil {
 		return req, err
 	}
@@ -137,6 +117,31 @@ func (c *Client) newRequest(subdomain, method string, endpoint string, params Pa
 	return req, err
 }
 
+// newRequest creates an authenticated API request that is ready to send.
+func (c *Client) newRequest(subdomain, method string, endpoint string, params Params, body interface{}) (*http.Request, error) {
+
+	if subdomain == "" {
+		subdomain = "www"
+	}
+
+	requestURL := c.baseURL + "/spi/v3/{endpoint}"
+	requestURL = strings.Replace(requestURL, "{subdomain}", subdomain, -1)
+	requestURL = strings.Replace(requestURL, "{domain}", c.domain, -1)
+	requestURL = strings.Replace(requestURL, "{endpoint}", endpoint, -1)
+
+	// Query String
+	qs := url.Values{}
+	for k, v := range params {
+		qs.Add(k, fmt.Sprintf("%v", v))
+	}
+
+	if len(qs) > 0 {
+		requestURL += "?" + qs.Encode()
+	}
+
+	return c.newRequestFromURL(requestURL, method, body)
+}
+
 // do takes a prepared API request and makes the API call to Workable.
 // It will decode the JSON into a destination struct you provide as well
 // as parse any validation errors that may have occurred.
@@ -144,6 +149,12 @@ func (c *Client) newRequest(subdomain, method string, endpoint string, params Pa
 // with some convenience methods.
 func (c *Client) do(req *http.Request, v interface{}) error {
 	return do(c.httpClient, req, v)
+}
+
+type complexWorkableError struct {
+	Error struct {
+		Error ErrorComplex `json:"error"`
+	} `json:"error"`
 }
 
 func do(client *http.Client, req *http.Request, v interface{}) error {
@@ -158,22 +169,33 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 	defer resp.Body.Close()
 
 	if r, err := isError(resp); r && err == nil {
-		workableError := Error{}
-		err = readJSON(resp.Body, &workableError)
+		b, err := ioutil.ReadAll(resp.Body)
+		bs := string(b)
 		if err != nil {
 			return err
+		}
+		errorSimple := Error{}
+		errorComplex := complexWorkableError{}
+		err = readJSON(bytes.NewBufferString(bs), &errorSimple)
+		if err != nil {
+			err = readJSON(bytes.NewBufferString(bs), &errorComplex)
+			if err != nil {
+				return err
+			}
 		}
 		if r, err = isClientError(resp); r && err == nil {
 			clientError := ClientError{
 				StatusCode:   resp.StatusCode,
-				ErrorMessage: workableError,
+				ErrorSimple:  errorSimple,
+				ErrorComplex: errorComplex.Error.Error,
 			}
 			return clientError
 		}
 		if r, err = isServerError(resp); r && err == nil {
 			serverError := ServerError{
 				StatusCode:   resp.StatusCode,
-				ErrorMessage: workableError,
+				ErrorSimple:  errorSimple,
+				ErrorComplex: errorComplex.Error.Error,
 			}
 			return serverError
 		}

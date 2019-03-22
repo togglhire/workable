@@ -152,7 +152,7 @@ func Test_do_client_error(t *testing.T) {
 		wantErrorType: ClientError{},
 		clientError: ClientError{
 			StatusCode: 400,
-			ErrorMessage: Error{
+			ErrorSimple: Error{
 				Error: "Validation failed: Email candidate already exists",
 				ValidationErrors: ValidationErrors{
 					Email: []string{
@@ -210,7 +210,7 @@ func Test_do_server_error(t *testing.T) {
 		wantErrorType: ServerError{},
 		serverError: ServerError{
 			StatusCode: 500,
-			ErrorMessage: Error{
+			ErrorSimple: Error{
 				Error: "Validation failed: Email candidate already exists",
 				ValidationErrors: ValidationErrors{
 					Email: []string{
