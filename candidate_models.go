@@ -6,6 +6,7 @@ type CandidateInput struct {
 }
 
 type Candidate struct {
+	ID                     string            `json:"id"`
 	Name                   string            `json:"name"`
 	Firstname              string            `json:"firstname"`
 	Lastname               string            `json:"lastname"`
