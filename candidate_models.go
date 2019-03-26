@@ -6,26 +6,26 @@ type CandidateInput struct {
 }
 
 type Candidate struct {
-	ID                     string            `json:"id"`
-	Name                   string            `json:"name"`
-	Firstname              string            `json:"firstname"`
-	Lastname               string            `json:"lastname"`
-	Headline               string            `json:"headline"`
-	Summary                string            `json:"summary"`
-	Address                string            `json:"address"`
-	Phone                  string            `json:"phone"`
-	Email                  string            `json:"email"`
-	CoverLetter            string            `json:"cover_letter"`
-	EducationEntries       []EducationEntry  `json:"education_entries"`
-	ExperienceEntries      []ExperienceEntry `json:"experience_entries"`
-	Skills                 []string          `json:"skills"`
-	SocialProfiles         []SocialProfile   `json:"social_profiles"`
-	ResumeURL              string            `json:"resume_url"`
-	Tags                   []string          `json:"tags"`
-	Disqualifed            bool              `json:"disqualifed"`
-	DisqualificationReason string            `json:"disqualification_reason"`
-	DisqualifiedAt         string            `json:"disqualified_at"`
-	Domain                 string            `json:"domain"`
+	ID                     string            `json:"id,omitempty"`
+	Name                   string            `json:"name,omitempty"`
+	Firstname              string            `json:"firstname,omitempty"`
+	Lastname               string            `json:"lastname,omitempty"`
+	Headline               string            `json:"headline,omitempty"`
+	Summary                string            `json:"summary,omitempty"`
+	Address                string            `json:"address,omitempty"`
+	Phone                  string            `json:"phone,omitempty"`
+	Email                  string            `json:"email,omitempty"`
+	CoverLetter            string            `json:"cover_letter,omitempty"`
+	EducationEntries       []EducationEntry  `json:"education_entries,omitempty"`
+	ExperienceEntries      []ExperienceEntry `json:"experience_entries,omitempty"`
+	Skills                 []string          `json:"skills,omitempty"`
+	SocialProfiles         []SocialProfile   `json:"social_profiles,omitempty"`
+	ResumeURL              string            `json:"resume_url,omitempty"`
+	Tags                   []string          `json:"tags,omitempty"`
+	Disqualifed            bool              `json:"disqualifed,omitempty"`
+	DisqualificationReason string            `json:"disqualification_reason,omitempty"`
+	DisqualifiedAt         string            `json:"disqualified_at,omitempty"`
+	Domain                 string            `json:"domain,omitempty"`
 }
 
 type EducationEntry struct {
