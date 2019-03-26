@@ -24,6 +24,7 @@ type OAuthServiceInput struct {
 // AuthorizeURLInput holds the info required to create an Authorize request.
 type AuthorizeURLInput struct {
 	Scopes []OAuthScope
+	State  string
 }
 
 // AccessTokenInput holds the info required to retrieve the access token.

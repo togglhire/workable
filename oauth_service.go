@@ -46,10 +46,9 @@ func (s *oauthServiceImpl) CreateAuthURL(d AuthorizeURLInput) (result string, er
 		q.Add("scope", spaceDelimit(d.Scopes))
 	}
 
-	// TODO: check if state is available
-	// if d.State != "" {
-	// 	q.Add("state", d.State)
-	// }
+	if d.State != "" {
+		q.Add("state", d.State)
+	}
 	authURL.RawQuery = q.Encode()
 	return authURL.String(), nil
 }
