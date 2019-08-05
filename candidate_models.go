@@ -66,3 +66,18 @@ type GetCandidatesInput struct {
 	CreatedAfter int64
 	UpdatedAfter int64
 }
+
+type ListCandidatesInput struct {
+	JobShortCode string
+	State        string
+	Limit        int
+	SinceID      string
+	MaxID        string
+	CreatedAfter int64
+	UpdatedAfter int64
+}
+
+type Candidates struct {
+	Candidates []Candidate `json:"candidates"`
+	Paging     Paging      `json:"paging"`
+}
