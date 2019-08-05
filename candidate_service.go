@@ -5,7 +5,8 @@ import "fmt"
 var _ candidateService = &candidateServiceImpl{}
 
 type candidateService interface {
-	Post(jobShortCode string, input CandidateInput) (result CandidateOutput, err error)
+	Create(jobShortCode string, input CandidateInput) (result CandidateOutput, err error)
+	// List(jobShortCode string)
 }
 
 type candidateServiceImpl struct {
@@ -13,7 +14,7 @@ type candidateServiceImpl struct {
 	subdomain string
 }
 
-func (s *candidateServiceImpl) Post(jobShortCode string, input CandidateInput) (result CandidateOutput, err error) {
+func (s *candidateServiceImpl) Create(jobShortCode string, input CandidateInput) (result CandidateOutput, err error) {
 	req, err := s.client.newRequest(s.subdomain, "POST", fmt.Sprintf("jobs/%s/candidates", jobShortCode), nil, input)
 	if err != nil {
 		return

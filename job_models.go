@@ -38,7 +38,7 @@ type Paging struct {
 	Next string `json:"next"`
 }
 
-type GetJobsInput struct {
+type ListJobsInput struct {
 	State        string
 	Limit        int
 	SinceID      string

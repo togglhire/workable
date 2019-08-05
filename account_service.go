@@ -3,14 +3,14 @@ package workable
 var _ accountService = &accountServiceImpl{}
 
 type accountService interface {
-	Get() (Accounts, error)
+	List() (Accounts, error)
 }
 
 type accountServiceImpl struct {
 	client *Client
 }
 
-func (s *accountServiceImpl) Get() (result Accounts, err error) {
+func (s *accountServiceImpl) List() (result Accounts, err error) {
 	req, err := s.client.newRequest("", "GET", "accounts", nil, nil)
 	if err != nil {
 		return

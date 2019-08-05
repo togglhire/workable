@@ -5,7 +5,7 @@ import "net/http"
 var _ jobService = &jobServiceImpl{}
 
 type jobService interface {
-	Get(input GetJobsInput, next string) (result Jobs, err error)
+	List(input ListJobsInput, next string) (result Jobs, err error)
 }
 
 type jobServiceImpl struct {
@@ -13,7 +13,7 @@ type jobServiceImpl struct {
 	subdomain string
 }
 
-func (s *jobServiceImpl) Get(input GetJobsInput, next string) (result Jobs, err error) {
+func (s *jobServiceImpl) List(input ListJobsInput, next string) (result Jobs, err error) {
 	params := Params{}
 	if input.State != "" {
 		params["state"] = input.State

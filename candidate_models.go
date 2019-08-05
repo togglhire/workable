@@ -57,3 +57,12 @@ type CandidateOutput struct {
 	Status    string    `json:"status"`
 	Candidate Candidate `json:"candidate"`
 }
+
+type GetCandidatesInput struct {
+	State        string
+	Limit        int
+	SinceID      string
+	MaxID        string
+	CreatedAfter int64
+	UpdatedAfter int64
+}
