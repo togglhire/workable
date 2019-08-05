@@ -54,7 +54,7 @@ func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (res
 	if next != "" { // use next url
 		req, err = s.client.newRequestFromURL(next, "GET", nil)
 	} else {
-		req, err = s.client.newRequest(s.subdomain, "GET", "jobs", params, nil)
+		req, err = s.client.newRequest(s.subdomain, "GET", "candidates", params, nil)
 	}
 	if err != nil {
 		return
