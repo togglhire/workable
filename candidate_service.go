@@ -9,7 +9,7 @@ var _ candidateService = &candidateServiceImpl{}
 
 type candidateService interface {
 	Create(jobShortCode string, input CandidateInput) (result CandidateOutput, err error)
-	List(input ListCandidatesInput, next string) (result CandidateOutput, err error)
+	List(input ListCandidatesInput, next string) (result Candidates, err error)
 }
 
 type candidateServiceImpl struct {
@@ -26,7 +26,7 @@ func (s *candidateServiceImpl) Create(jobShortCode string, input CandidateInput)
 	return
 }
 
-func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (result CandidateOutput, err error) {
+func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (result Candidates, err error) {
 	params := Params{}
 	if input.JobShortCode != "" {
 		params["shortcode"] = input.JobShortCode
