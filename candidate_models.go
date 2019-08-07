@@ -1,5 +1,7 @@
 package workable
 
+import "time"
+
 type CandidateInput struct {
 	Sourced   bool      `json:"sourced"`
 	Candidate Candidate `json:"candidate"`
@@ -26,6 +28,34 @@ type Candidate struct {
 	DisqualificationReason string            `json:"disqualification_reason,omitempty"`
 	DisqualifiedAt         string            `json:"disqualified_at,omitempty"`
 	Domain                 string            `json:"domain,omitempty"`
+}
+
+type CandidateListItem struct {
+	ID        string `json:"id,omitempty"`
+	Name      string `json:"name,omitempty"`
+	Firstname string `json:"firstname,omitempty"`
+	Lastname  string `json:"lastname,omitempty"`
+	Headline  string `json:"headline,omitempty"`
+	Account   struct {
+		Subdomain string `json:"subdomain,omitempty"`
+		Name      string `json:"name,omitempty"`
+	} `json:"account"`
+	Job struct {
+		Shortcode string `json:"shortcode,omitempty"`
+		Title     string `json:"title,omitempty"`
+	} `json:"job"`
+	Stage                  string     `json:"stage,omitempty"`
+	Disqualifed            bool       `json:"disqualifed,omitempty"`
+	DisqualificationReason string     `json:"disqualification_reason,omitempty"`
+	Sourced                bool       `json:"sourced,omitempty"`
+	ProfileURL             string     `json:"profile_url,omitempty"`
+	Email                  string     `json:"email,omitempty"`
+	Domain                 string     `json:"domain,omitempty"`
+	CreatedAt              time.Time  `json:"created_at,omitempty"`
+	UpdatedAt              time.Time  `json:"updated_at,omitempty"`
+	HiredAt                *time.Time `json:"hired_at,omitempty"`
+	Address                string     `json:"address,omitempty"`
+	Phone                  string     `json:"phone,omitempty"`
 }
 
 type EducationEntry struct {
@@ -78,6 +108,6 @@ type ListCandidatesInput struct {
 }
 
 type Candidates struct {
-	Candidates []Candidate `json:"candidates"`
-	Paging     Paging      `json:"paging"`
+	Candidates []CandidateListItem `json:"candidates"`
+	Paging     Paging              `json:"paging"`
 }
