@@ -10,6 +10,7 @@ var _ candidateService = &candidateServiceImpl{}
 type candidateService interface {
 	Create(jobShortCode string, input CandidateInput) (result CandidateOutput, err error)
 	List(input ListCandidatesInput, next string) (result Candidates, err error)
+	Get(id string) (result Candidate, err error)
 }
 
 type candidateServiceImpl struct {
@@ -61,4 +62,17 @@ func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (res
 	}
 	err = s.client.do(req, &result)
 	return
+}
+
+func (s *candidateServiceImpl) Get(id string) (result Candidate, err error) {
+	req, err := s.client.newRequest(s.subdomain, "GET", fmt.Sprintf("candidates/%s", id), nil, nil)
+	if err != nil {
+		return
+	}
+
+	temp := struct {
+		Candidate Candidate `json:"candidate"`
+	}{}
+	err = s.client.do(req, &temp)
+	return temp.Candidate, err
 }
