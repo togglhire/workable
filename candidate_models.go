@@ -111,3 +111,21 @@ type Candidates struct {
 	Candidates []CandidateListItem `json:"candidates"`
 	Paging     Paging              `json:"paging"`
 }
+
+type CandidateUpdateInput struct {
+	Firstname         *string           `json:"firstname,omitempty"`
+	Lastname          *string           `json:"lastname,omitempty"`
+	Email             *string           `json:"email,omitempty"`
+	Headline          *string           `json:"headline,omitempty"`
+	Summary           *string           `json:"summary,omitempty"`
+	Address           *string           `json:"address,omitempty"`
+	Phone             *string           `json:"phone,omitempty"`
+	CoverLetter       *string           `json:"cover_letter,omitempty"`
+	ResumeURL         *string           `json:"resume_url,omitempty"`
+	ImageURL          *string           `json:"image_url,omitempty"`
+	EducationEntries  []EducationEntry  `json:"education_entries,omitempty"`
+	ExperienceEntries []ExperienceEntry `json:"experience_entries,omitempty"`
+	Skills            []string          `json:"skills,omitempty"`
+	Tags              []string          `json:"tags,omitempty"`
+	SocialProfiles    []SocialProfile   `json:"social_profiles,omitempty"`
+}

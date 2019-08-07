@@ -11,6 +11,7 @@ type candidateService interface {
 	Create(jobShortCode string, input CandidateInput) (result CandidateOutput, err error)
 	List(input ListCandidatesInput, next string) (result Candidates, err error)
 	Get(id string) (result Candidate, err error)
+	Update(id string, input CandidateUpdateInput) (result Candidate, err error)
 }
 
 type candidateServiceImpl struct {
@@ -66,6 +67,24 @@ func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (res
 
 func (s *candidateServiceImpl) Get(id string) (result Candidate, err error) {
 	req, err := s.client.newRequest(s.subdomain, "GET", fmt.Sprintf("candidates/%s", id), nil, nil)
+	if err != nil {
+		return
+	}
+
+	temp := struct {
+		Candidate Candidate `json:"candidate"`
+	}{}
+	err = s.client.do(req, &temp)
+	return temp.Candidate, err
+}
+
+func (s *candidateServiceImpl) Update(id string, input CandidateUpdateInput) (result Candidate, err error) {
+	inputTemp := struct {
+		Candidate CandidateUpdateInput `json:"candidate"`
+	}{
+		Candidate: input,
+	}
+	req, err := s.client.newRequest(s.subdomain, "PATCH", fmt.Sprintf("candidates/%s", id), nil, inputTemp)
 	if err != nil {
 		return
 	}
