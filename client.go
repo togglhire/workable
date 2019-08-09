@@ -117,7 +117,7 @@ func (c *Client) newRequestFromURL(reqURL string, method string, body interface{
 		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token.AccessToken))
 	}
 
-	if req.Method == "POST" || req.Method == "PUT" {
+	if req.Method == "POST" || req.Method == "PUT" || req.Method == "PATCH" {
 		req.Header.Set("Content-Type", "application/json; charset=utf-8")
 	}
 
