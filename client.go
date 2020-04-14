@@ -195,6 +195,7 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 				StatusCode:   resp.StatusCode,
 				ErrorSimple:  errorSimple,
 				ErrorComplex: errorComplex.Error.Error,
+				ResponseBody: bs,
 			}
 			return clientError
 		}
@@ -203,6 +204,7 @@ func do(client *http.Client, req *http.Request, v interface{}) error {
 				StatusCode:   resp.StatusCode,
 				ErrorSimple:  errorSimple,
 				ErrorComplex: errorComplex.Error.Error,
+				ResponseBody: bs,
 			}
 			return serverError
 		}

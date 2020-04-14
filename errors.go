@@ -37,20 +37,22 @@ type ClientError struct {
 	StatusCode   int
 	ErrorSimple  Error
 	ErrorComplex ErrorComplex
+	ResponseBody string
 }
 
 func (e ClientError) Error() string {
-	return fmt.Sprintf("Error: %#+v\n%#+v\n", e.ErrorSimple, e.ErrorComplex)
+	return fmt.Sprintf("Error: %d\n%#+v\n%#+v\n%s\n", e.StatusCode, e.ErrorSimple, e.ErrorComplex, e.ResponseBody)
 }
 
 type ServerError struct {
 	StatusCode   int
 	ErrorSimple  Error
 	ErrorComplex ErrorComplex
+	ResponseBody string
 }
 
 func (e ServerError) Error() string {
-	return fmt.Sprintf("Error: %#+v\n%#+v\n", e.ErrorSimple, e.ErrorComplex)
+	return fmt.Sprintf("Error: %d\n%#+v\n%#+v\n%s\n", e.StatusCode, e.ErrorSimple, e.ErrorComplex, e.ResponseBody)
 }
 
 func isOK(r *http.Response) (bool, error) {
@@ -62,7 +64,7 @@ func isOK(r *http.Response) (bool, error) {
 
 func isError(r *http.Response) (bool, error) {
 	if r == nil {
-		return false, ErrShouldNotBeNil
+		return true, ErrShouldNotBeNil
 	}
 	ok, err := isOK(r)
 	return !ok, err

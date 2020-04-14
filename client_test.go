@@ -135,12 +135,11 @@ func Test_do_client_error(t *testing.T) {
 		{
 			"error": "Validation failed: Email candidate already exists",
 			"validation_errors": {
-			  "email": [
-				"candidate already exists"
-			  ]
+				"email": [
+					"candidate already exists"
+				]
 			}
-		  }
-		`)
+		}`)
 	})
 
 	test := struct {
@@ -156,6 +155,15 @@ func Test_do_client_error(t *testing.T) {
 				Error:            "Validation failed: Email candidate already exists",
 				ValidationErrors: map[string]interface{}{"email": []interface{}{"candidate already exists"}},
 			},
+			ResponseBody: `
+		{
+			"error": "Validation failed: Email candidate already exists",
+			"validation_errors": {
+				"email": [
+					"candidate already exists"
+				]
+			}
+		}`,
 		},
 	}
 
@@ -189,12 +197,11 @@ func Test_do_server_error(t *testing.T) {
 		{
 			"error": "Validation failed: Email candidate already exists",
 			"validation_errors": {
-			  "email": [
-				"candidate already exists"
-			  ]
+				"email": [
+					"candidate already exists"
+				]
 			}
-		  }
-		`)
+		}`)
 	})
 
 	test := struct {
@@ -210,6 +217,15 @@ func Test_do_server_error(t *testing.T) {
 				Error:            "Validation failed: Email candidate already exists",
 				ValidationErrors: map[string]interface{}{"email": []interface{}{"candidate already exists"}},
 			},
+			ResponseBody: `
+		{
+			"error": "Validation failed: Email candidate already exists",
+			"validation_errors": {
+				"email": [
+					"candidate already exists"
+				]
+			}
+		}`,
 		},
 	}
 
