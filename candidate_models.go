@@ -28,6 +28,8 @@ type Candidate struct {
 	DisqualificationReason string            `json:"disqualification_reason,omitempty"`
 	DisqualifiedAt         string            `json:"disqualified_at,omitempty"`
 	Domain                 string            `json:"domain,omitempty"`
+	CreatedAt              time.Time         `json:"created_at,omitempty"`
+	UpdatedAt              time.Time         `json:"updated_at,omitempty"`
 }
 
 type CandidateListItem struct {
