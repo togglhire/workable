@@ -20,7 +20,7 @@ type Candidate struct {
 	CoverLetter            string            `json:"cover_letter,omitempty"`
 	EducationEntries       []EducationEntry  `json:"education_entries,omitempty"`
 	ExperienceEntries      []ExperienceEntry `json:"experience_entries,omitempty"`
-	Skills                 []string          `json:"skills,omitempty"`
+	Skills                 []Skill           `json:"skills,omitempty"`
 	SocialProfiles         []SocialProfile   `json:"social_profiles,omitempty"`
 	ResumeURL              string            `json:"resume_url,omitempty"`
 	Tags                   []string          `json:"tags,omitempty"`
@@ -127,7 +127,11 @@ type CandidateUpdateInput struct {
 	ImageURL          *string           `json:"image_url,omitempty"`
 	EducationEntries  []EducationEntry  `json:"education_entries,omitempty"`
 	ExperienceEntries []ExperienceEntry `json:"experience_entries,omitempty"`
-	Skills            []string          `json:"skills,omitempty"`
+	Skills            []Skill           `json:"skills,omitempty"`
 	Tags              []string          `json:"tags,omitempty"`
 	SocialProfiles    []SocialProfile   `json:"social_profiles,omitempty"`
+}
+
+type Skill struct {
+	Name string `json:"name,omitempty"`
 }
