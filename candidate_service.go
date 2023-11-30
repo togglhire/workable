@@ -30,6 +30,9 @@ func (s *candidateServiceImpl) Create(jobShortCode string, input CandidateInput)
 
 func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (result Candidates, err error) {
 	params := Params{}
+	if input.Email != "" {
+		params["email"] = input.Email
+	}
 	if input.JobShortCode != "" {
 		params["shortcode"] = input.JobShortCode
 	}

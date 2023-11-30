@@ -91,6 +91,7 @@ type CandidateOutput struct {
 }
 
 type ListCandidatesInput struct {
+	Email        string
 	JobShortCode string
 	Stage        string
 	Limit        int
