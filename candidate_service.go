@@ -33,8 +33,8 @@ func (s *candidateServiceImpl) List(input ListCandidatesInput, next string) (res
 	if input.JobShortCode != "" {
 		params["shortcode"] = input.JobShortCode
 	}
-	if input.State != "" {
-		params["state"] = input.State
+	if input.Stage != "" {
+		params["stage"] = input.Stage
 	}
 	if input.Limit != 0 {
 		params["limit"] = input.Limit

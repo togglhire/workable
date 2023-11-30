@@ -92,7 +92,7 @@ type CandidateOutput struct {
 
 type ListCandidatesInput struct {
 	JobShortCode string
-	State        string
+	Stage        string
 	Limit        int
 	SinceID      string
 	MaxID        string
