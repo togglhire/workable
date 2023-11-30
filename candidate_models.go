@@ -90,15 +90,6 @@ type CandidateOutput struct {
 	Candidate Candidate `json:"candidate"`
 }
 
-type GetCandidatesInput struct {
-	State        string
-	Limit        int
-	SinceID      string
-	MaxID        string
-	CreatedAfter int64
-	UpdatedAfter int64
-}
-
 type ListCandidatesInput struct {
 	JobShortCode string
 	State        string
